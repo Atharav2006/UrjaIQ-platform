@@ -11,3 +11,8 @@ python-multipart
 passlib[bcrypt]
 python-jose[cryptography]
 reportlab
+scikit-learn
+numpy
+matplotlib
+qrcode
+requests
