@@ -5,3 +5,9 @@ sqlalchemy
 psycopg2-binary
 groq
 python-dotenv
+pytesseract
+pillow
+python-multipart
+passlib[bcrypt]
+python-jose[cryptography]
+reportlab
