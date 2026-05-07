@@ -50,7 +50,7 @@ ChartJS.register(
   LineElement
 );
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://urjaiq-backend.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://consequence-specializing-backing-convertible.trycloudflare.com';
 
 function App() {
   // --- Auth State ---
