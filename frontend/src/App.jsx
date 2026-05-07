@@ -539,14 +539,14 @@ function App() {
   const fetchSocietyData = async () => {
     if (!token) return;
     try {
-      const response = await fetch(`${API_BASE_URL}/society/dashboard`, {
+      const response = await fetch(`${API_BASE_URL}/society-dashboard`, {
         mode: 'cors',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         const data = await response.json();
         setSocietyData(data);
-        if (data.society) {
+        if (data.society_name) {
           setShowSocietyDashboard(true);
         }
       }
