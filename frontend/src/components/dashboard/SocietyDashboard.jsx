@@ -5,7 +5,9 @@ import { Button } from '../ui/Button';
 export function SocietyDashboard({ t, societyData, authForm, setShowSocietyDashboard, getSocietyInsight, children }) {
   if (!societyData) return null;
 
-  const userRank = societyData.users.findIndex(u => u.is_current_user) + 1;
+  // Use server-computed rank (reliable). Fallback to findIndex for backwards compat.
+  const userRank = societyData.user_rank 
+    ?? (societyData.users.findIndex(u => u.is_current_user) + 1);
   const insight = getSocietyInsight();
 
   return (

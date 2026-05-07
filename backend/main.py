@@ -768,28 +768,54 @@ def get_society_dashboard(current_user: dict = Depends(get_current_user)):
         # Fetch the full user object to get society_name
         user_obj = db.query(User).filter(User.id == user_id).first()
         if not user_obj or not user_obj.society_name:
-            return [] # No society assigned
+            return []  # No society assigned
 
         society_name = user_obj.society_name
-        
+
         # Fetch all users in same society
         society_users = db.query(User).filter(User.society_name == society_name).all()
-        
+
         dashboard_data = []
         for u in society_users:
-            avg_units = db.query(func.avg(Reading.units)).filter(Reading.user_id == u.id).scalar() or 0
+            avg_units = db.query(func.avg(Reading.units)).filter(Reading.user_id == u.id).scalar()
+            # Only include users who have at least one reading
+            if avg_units is not None:
+                dashboard_data.append({
+                    "username": u.username,
+                    "avg_units": round(float(avg_units), 2),
+                    "is_current_user": u.id == user_id,
+                    "user_id": u.id
+                })
+
+        # If current user has no readings yet, still include them
+        current_user_in_list = any(d["user_id"] == user_id for d in dashboard_data)
+        if not current_user_in_list:
             dashboard_data.append({
-                "username": u.username,
-                "avg_units": round(float(avg_units), 2),
-                "is_current_user": str(u.id) == str(user_id)
+                "username": user_obj.username,
+                "avg_units": 0,
+                "is_current_user": True,
+                "user_id": user_id
             })
-            
-        # Sort by avg_units (lowest first for rank)
+
+        # Sort by avg_units ascending (lowest usage = best rank = rank 1)
         dashboard_data.sort(key=lambda x: x["avg_units"])
-        
+
+        # Compute rank server-side
+        user_rank = next((i + 1 for i, d in enumerate(dashboard_data) if d["is_current_user"]), 0)
+
+        # Remove internal user_id field before returning
+        for d in dashboard_data:
+            d.pop("user_id", None)
+
+        total_users = len(dashboard_data)
+        avg_all = round(sum(d["avg_units"] for d in dashboard_data) / total_users, 2) if total_users else 0
+
         return {
             "society_name": society_name,
-            "users": dashboard_data
+            "users": dashboard_data,
+            "user_rank": user_rank,
+            "total_users": total_users,
+            "avg_units": avg_all
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
