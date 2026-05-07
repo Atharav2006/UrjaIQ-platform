@@ -781,7 +781,7 @@ def get_society_dashboard(current_user: dict = Depends(get_current_user)):
             dashboard_data.append({
                 "username": u.username,
                 "avg_units": round(float(avg_units), 2),
-                "is_current_user": u.id == user_id
+                "is_current_user": str(u.id) == str(user_id)
             })
             
         # Sort by avg_units (lowest first for rank)
