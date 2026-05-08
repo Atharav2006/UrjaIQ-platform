@@ -1,4 +1,3 @@
-from sklearn.ensemble import RandomForestRegressor
 from sqlalchemy.orm import Session
 from models import Reading
 
@@ -10,11 +9,18 @@ def predict_consumption(city: str, household_type: str, db: Session) -> dict:
     readings = db.query(Reading).all()
     
     if len(readings) < 10:
+        # Simple fallback for small datasets to save memory and avoid model overhead
+        if len(readings) > 0:
+            avg_units = sum(r.units for r in readings) / len(readings)
+            return {"predicted_units": round(avg_units, 2)}
         return {
             "predicted_units": None,
             "message": "Not enough data for prediction"
         }
         
+    # Lazy import to save startup memory
+    from sklearn.ensemble import RandomForestRegressor
+
     # Dynamically encode categorical features
     unique_cities = list(set(r.city for r in readings))
     city_map = {c: i for i, c in enumerate(unique_cities)}

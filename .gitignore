@@ -8,5 +8,11 @@ venv/
 env/
 .venv/
 .DS_Store
-urjaiq.db
+*.db
+*.sqlite3
 reports/
+cloudflared.exe
+cloudflared.log
+*.log
+temp_reqs.txt
+start_tunnel.bat

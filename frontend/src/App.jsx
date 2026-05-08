@@ -50,7 +50,10 @@ ChartJS.register(
   LineElement
 );
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://consequence-specializing-backing-convertible.trycloudflare.com';
+// Backend URL — set VITE_API_URL in Netlify environment variables (Site Settings → Env vars)
+// This should point to your Railway backend: https://your-app.up.railway.app
+const DEFAULT_API_URL = 'https://your-urjaiq-backend.up.railway.app';
+const API_BASE_URL = localStorage.getItem('api_url_override') || import.meta.env.VITE_API_URL || DEFAULT_API_URL;
 
 function App() {
   // --- Auth State ---
@@ -128,6 +131,20 @@ function App() {
   const [reportLoading, setReportLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [backendStatus, setBackendStatus] = useState('checking'); // 'checking', 'online', 'offline'
+
+  useEffect(() => {
+    const checkBackend = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/city/insights`, { mode: 'cors' });
+        if (res.ok) setBackendStatus('online');
+        else setBackendStatus('offline');
+      } catch (err) {
+        setBackendStatus('offline');
+      }
+    };
+    checkBackend();
+  }, []);
 
 
   const fetchCarbonInsights = async () => {
@@ -256,7 +273,11 @@ function App() {
       }
     } catch (err) {
       console.error("Auth Error:", err);
-      setAuthError(err.message);
+      let msg = err.message;
+      if (err.message.includes('Failed to fetch')) {
+        msg = `Could not connect to backend at ${API_BASE_URL}. Please ensure your tunnel is running or update the API URL.`;
+      }
+      setAuthError(msg);
     } finally {
       setAuthLoading(false);
     }
@@ -891,7 +912,26 @@ function App() {
   
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-slate-50 relative overflow-hidden">
+        {/* Connection Warning Banner */}
+        {backendStatus === 'offline' && (
+          <div className="bg-red-500 text-white px-4 py-2 text-center text-sm font-bold animate-pulse flex items-center justify-center gap-4 sticky top-0 z-[60]">
+            <span>⚠️ Backend Offline (Target: {API_BASE_URL})</span>
+            <button 
+              onClick={() => {
+                const newUrl = prompt("Enter new Backend URL (e.g. https://xyz.trycloudflare.com):", API_BASE_URL);
+                if (newUrl) {
+                  localStorage.setItem('api_url_override', newUrl);
+                  window.location.reload();
+                }
+              }}
+              className="bg-white text-red-500 px-3 py-1 rounded-full text-xs hover:bg-slate-100 transition-colors shadow-sm"
+            >
+              Update URL
+            </button>
+          </div>
+        )}
+        <div className="min-h-screen flex items-center justify-center p-4">
         <div className="absolute top-0 right-0 p-64 bg-emerald-100 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 p-64 bg-teal-100 rounded-full blur-3xl opacity-50 translate-y-1/2 -translate-x-1/3"></div>
         
@@ -937,6 +977,7 @@ function App() {
           </p>
         </div>
       </div>
+    </div>
     );
   }
 
@@ -1066,6 +1107,25 @@ function App() {
         alerts={alerts} showAlerts={showAlerts} setShowAlerts={setShowAlerts}
         fetchSocietyData={fetchSocietyData} fetchFullHistory={fetchFullHistory}
       />
+      
+      {/* Connection Warning Banner */}
+      {backendStatus === 'offline' && (
+        <div className="bg-red-500 text-white px-4 py-2 text-center text-sm font-bold animate-pulse flex items-center justify-center gap-4 sticky top-16 z-40">
+          <span>⚠️ Backend Offline (Target: {API_BASE_URL})</span>
+          <button 
+            onClick={() => {
+              const newUrl = prompt("Enter new Backend URL (e.g. https://xyz.trycloudflare.com):", API_BASE_URL);
+              if (newUrl) {
+                localStorage.setItem('api_url_override', newUrl);
+                window.location.reload();
+              }
+            }}
+            className="bg-white text-red-500 px-3 py-1 rounded-full text-xs hover:bg-slate-100 transition-colors shadow-sm"
+          >
+            Update URL
+          </button>
+        </div>
+      )}
       
       <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative">
         <div className="absolute top-0 right-0 p-96 bg-emerald-50 rounded-full blur-3xl opacity-50 pointer-events-none -translate-y-1/2 translate-x-1/3"></div>

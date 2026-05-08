@@ -142,7 +142,7 @@ def get_premium_badge(score):
     if score >= 50: return "B-Tier Efficiency", "Balanced User"
     return "C-Tier Efficiency", "High Consumer"
 
-def generate_user_report(user_id: int):
+def generate_user_report(user_id: int, base_url: str = "http://127.0.0.1:8000"):
     db = SessionLocal()
     try:
         # 1. Fetch User Data
@@ -350,7 +350,7 @@ def generate_user_report(user_id: int):
         elements.append(Spacer(1, 1 * inch))
         
         # QR Code Section
-        report_url = f"http://127.0.0.1:8000/reports/{filename}"
+        report_url = f"{base_url}/reports/{filename}"
         qr_path = generate_qr(report_url, report_dir, user_id)
         chart_paths.append(qr_path)
         
