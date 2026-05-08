@@ -51,8 +51,8 @@ ChartJS.register(
 );
 
 // Backend URL — set VITE_API_URL in Netlify environment variables (Site Settings → Env vars)
-// This should point to your Railway backend: https://your-app.up.railway.app
-const DEFAULT_API_URL = 'https://your-urjaiq-backend.up.railway.app';
+// This should point to your Koyeb backend: https://your-app-name.koyeb.app
+const DEFAULT_API_URL = 'https://urjaiq-backend.koyeb.app';
 const API_BASE_URL = localStorage.getItem('api_url_override') || import.meta.env.VITE_API_URL || DEFAULT_API_URL;
 
 function App() {

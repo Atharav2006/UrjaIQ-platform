@@ -22,5 +22,5 @@ EXPOSE 8000
 
 
 # Start FastAPI
-# Use Railway's dynamic PORT env var (falls back to 8000 for local dev)
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Use dynamic PORT (Railway/Koyeb) or fallback to 7860 (Hugging Face)
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-7860}
