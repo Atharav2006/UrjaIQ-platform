@@ -14,7 +14,7 @@ export function ReportModal({ reportData, setShowReportModal }) {
         
         <button 
           onClick={() => setShowReportModal(false)}
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-black/10 text-white hover:bg-black/20 transition-colors z-10"
+          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-black/10 text-white hover:bg-black/20 transition-colors z-50 cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
