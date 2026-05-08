@@ -17,7 +17,7 @@ jobs:
         run: |
           # Only push the backend content and the root Dockerfile
           mkdir -p hf_sync
-          cp -r backend/* hf_sync/
+          cp -r backend hf_sync/
           cp Dockerfile hf_sync/
           cd hf_sync
           git init
