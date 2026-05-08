@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func
+from sqlalchemy import func, case
 from pydantic import BaseModel
 from database import SessionLocal, engine
 from models import Base, Reading, User, Alert, ApplianceUsage
@@ -495,26 +495,24 @@ def get_society_dashboard(current_user: dict = Depends(get_current_user)):
 def get_city_insights():
     db = SessionLocal()
     try:
-        # Group by city and calculate avg units and count
+        normalized_city = func.lower(func.trim(Reading.city))
+        
         results = db.query(
-            Reading.city,
+            normalized_city.label("normalized_city"),
             func.avg(Reading.units).label("avg_units"),
             func.avg(Reading.carbon_kg).label("avg_carbon"),
-            func.count(Reading.id).label("total_users")
-        ).group_by(Reading.city).all()
+            func.count(Reading.id).label("total_users"),
+            func.sum(case((Reading.units > 400, 1), else_=0)).label("high_usage_count")
+        ).group_by(normalized_city).all()
 
         city_stats = []
-        for city, avg_units, avg_carbon, total_users in results:
-            # Calculate % of users with usage > 400 (high usage)
-            high_usage_count = db.query(Reading).filter(
-                Reading.city == city,
-                Reading.units > 400
-            ).count()
-            
+        for city_lower, avg_units, avg_carbon, total_users, high_usage_count in results:
+            city_display = city_lower.title() if city_lower else "Unknown"
+            high_usage_count = high_usage_count or 0
             high_usage_percent = round((high_usage_count / total_users) * 100, 1) if total_users > 0 else 0
             
             city_stats.append({
-                "city": city or "Unknown",
+                "city": city_display,
                 "avg_units": round(avg_units, 1) if avg_units else 0,
                 "avg_carbon": round(avg_carbon, 1) if avg_carbon else 0,
                 "users": total_users,
