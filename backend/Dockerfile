@@ -20,9 +20,7 @@ COPY . .
 # Expose port
 EXPOSE 8000
 
-# Health check so Railway knows the service is up
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/')" || exit 1
 
 # Start FastAPI
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use Railway's dynamic PORT env var (falls back to 8000 for local dev)
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}

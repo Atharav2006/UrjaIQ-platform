@@ -275,7 +275,7 @@ function App() {
       console.error("Auth Error:", err);
       let msg = err.message;
       if (err.message.includes('Failed to fetch')) {
-        msg = `Could not connect to backend at ${API_BASE_URL}. Please ensure your tunnel is running or update the API URL.`;
+        msg = `Cannot reach backend (${API_BASE_URL}). The Railway backend may still be deploying — check Railway dashboard or update VITE_API_URL in Netlify settings.`;
       }
       setAuthError(msg);
     } finally {
