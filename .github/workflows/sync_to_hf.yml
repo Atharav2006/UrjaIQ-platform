@@ -11,8 +11,18 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          lfs: true
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://gadeatharva233:$HF_TOKEN@huggingface.co/spaces/gadeatharva233/urjaiq-api master
+        run: |
+          # Only push the backend content and the root Dockerfile
+          mkdir -p hf_sync
+          cp -r backend/* hf_sync/
+          cp Dockerfile hf_sync/
+          cd hf_sync
+          git init
+          git config user.name "Atharav"
+          git config user.email "atharva@example.com"
+          git add .
+          git commit -m "deploy: update backend"
+          git push --force https://gadeatharva233:$HF_TOKEN@huggingface.co/spaces/gadeatharva233/urjaiq-api master
