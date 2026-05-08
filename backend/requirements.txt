@@ -9,6 +9,7 @@ pytesseract
 pillow
 python-multipart
 passlib[bcrypt]
+bcrypt==3.2.2
 python-jose[cryptography]
 reportlab
 scikit-learn
