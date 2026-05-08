@@ -1361,7 +1361,7 @@ function App() {
           </div>
         )}
 
-        <ReportModal reportData={reportData} setShowReportModal={setShowReportModal} />
+        {showReportModal && <ReportModal reportData={reportData} setShowReportModal={setShowReportModal} />}
 
       </main>
     </div>
